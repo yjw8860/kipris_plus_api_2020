@@ -33,7 +33,7 @@ class DataBase:
         #create new table: "CREATE TABLE book_details(book_id INT(5), title VARCHAR(20), price INT(5))"
         #alter table(ADD COLUMN): "ALTER TABLE book_details ADD column_name datatype"
         #alter table(MODIFY COLUMN): "ALTER TABLE book_details MODIFY column_name datatype"
-        self.engine.execute(sql)
+        self.conn.execute(sql)
 
     def appendDataFrameToTable(self, df, table_name):
         df.to_sql(name=table_name, con=self.engine, if_exists='append', index=False)
@@ -55,30 +55,36 @@ class DataBase:
     def exportData(self, table_name):
         return pd.read_sql_table(table_name, self.conn)
 
+    def dropTable(self, table_name):
+        sql = f'DROP TABLE {table_name};'
+        self.conn.execute(sql)
+
 
 #다운로드(19600101 ~ 20191231)
 class MAKEDATE:
-    def __init__(self):
-        self.YEAR_LIST = list(range(2019,1959,-1))
-        self.YEAR_LIST = [str(year) for year in self.YEAR_LIST]
+    def __init__(self ,DB, last_year, last_month):
+        self.DB = DB
+        self.LAST_YEAR = last_year
+        self.LAST_MONTH = last_month
         self.MONTH_LIST = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-        self.DATE_LIST = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31']
+        self.MONTH_LIST = self.MONTH_LIST[self.LAST_MONTH-1:]
         self.start_date_list = []
         self.end_date_list = []
-        for year in self.YEAR_LIST:
-            if int(year) % 4 == 0:
-                self.DATE_LIST[1] = 29
-                if int(year) % 100 == 0:
-                    self.DATE_LIST[1] = 28
-                    if int(year) % 400 == 0:
-                        self.DATE_LIST[1] = 29
+        self.DATE_LIST = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31']
+        if int(self.LAST_YEAR) % 4 == 0:
+            self.DATE_LIST[1] = 29
+            if int(self.LAST_YEAR) % 100 == 0:
+                self.DATE_LIST[1] = 28
+                if int(self.LAST_YEAR) % 400 == 0:
+                    self.DATE_LIST[1] = 29
             else:
                 self.DATE_LIST[1] = 28
-            for month, date in zip(self.MONTH_LIST, self.DATE_LIST):
-                start_date = f'{year}{month}01'
-                end_date = f'{year}{month}{date}'
-                self.start_date_list.append(start_date)
-                self.end_date_list.append(end_date)
+        self.DATE_LIST = self.DATE_LIST[self.LAST_MONTH - 1:]
+        for month, date in zip(self.MONTH_LIST, self.DATE_LIST):
+            start_date = f'{self.LAST_YEAR}{month}01'
+            end_date = f'{self.LAST_YEAR}{month}{date}'
+            self.start_date_list.append(start_date)
+            self.end_date_list.append(end_date)
 
 class DOWNLOAD:
     def __init__(self, api_key, start_date, end_date):
