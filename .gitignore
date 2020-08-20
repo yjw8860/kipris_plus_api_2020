@@ -127,3 +127,5 @@ dmypy.json
 
 #private file
 api_key.py
+db_attribute.py
+test.py
