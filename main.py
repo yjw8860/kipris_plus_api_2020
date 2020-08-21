@@ -41,8 +41,11 @@ def saveImgAndVienna(start_date, end_date):
     page_num = parsing.GetPageNum()
     print(f'The number of page: {page_num - 1}')
     sleep(1)
-    for idx in range(1, page_num):
-        downloadImgAndVienna(download, idx, page_num)
+    if page_num == 1:
+        downloadImgAndVienna(download, 1, page_num)
+    else:
+        for idx in range(1, page_num):
+            downloadImgAndVienna(download, idx, page_num)
 
 
 def saveFromLastMonth(last_year, last_month, last_page, total_page):
